@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation - Wise Sobriety</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .message {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        .fallback {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Wise Sobriety</div>
+        <div class="title">Email Confirmation</div>
+        <div class="message">
+            Thank you for confirming your email! Your account has been successfully verified.
+        </div>
+        
+        <a href="#" id="openApp" class="button">Open Wise Sobriety App</a>
+        
+        <div class="fallback">
+            <p>If the app doesn't open automatically, please:</p>
+            <p>1. Open the Wise Sobriety app on your device</p>
+            <p>2. Sign in with your email and password</p>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        const name = urlParams.get('name');
+        const token = urlParams.get('token');
+        
+        // Create app URL
+        const appUrl = `wisesobriety://confirm?email=${email}&name=${name}&token=${token}`;
+        
+        // Try to open the app
+        function openApp() {
+            // Try to open the app
+            window.location.href = appUrl;
+            
+            // Fallback: if app doesn't open, show instructions
+            setTimeout(() => {
+                document.getElementById('openApp').innerHTML = 'App Not Found - Please Install Wise Sobriety';
+                document.getElementById('openApp').style.background = '#dc3545';
+            }, 2000);
+        }
+        
+        // Auto-open app when page loads
+        window.onload = function() {
+            openApp();
+        };
+        
+        // Manual open button
+        document.getElementById('openApp').addEventListener('click', openApp);
+    </script>
+</body>
+</html> 
