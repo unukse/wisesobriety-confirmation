@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation - Wise Sobriety</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .message {
+            color: #666;
+            line-height: 1.6;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        .success-icon {
+            font-size: 48px;
+            color: #38a169;
+            margin-bottom: 20px;
+        }
+        .error-icon {
+            font-size: 48px;
+            color: #e53e3e;
+            margin-bottom: 20px;
+        }
+        .spinner {
+            margin: 30px auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="confirmation-container">
+        <div class="spinner" id="loading-spinner"></div>
+        <div id="result" style="display:none;"></div>
+        <a href="index.html" class="btn" id="back-btn" style="display:none;">Back to Home</a>
+    </div>
+    <script>
+        // Supabase config
+        const SUPABASE_URL = 'https://nzmtiwjdtcgzifxygxsa.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56bXRpd2pkdGNnemlmeHlneHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1NTUyMzEsImV4cCI6MjA2NzEzMTIzMX0.vJxUHnLPvjBjM7hh3xk4cQlGj-hKrDze12eNk10BzSg';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function getParamsFromHash() {
+            const hash = window.location.hash;
+            const params = new URLSearchParams(hash.slice(1));
+            return {
+                access_token: params.get('access_token'),
+                type: params.get('type'),
+                error_description: params.get('error_description')
+            };
+        }
+
+        async function handleConfirmation() {
+            const { access_token, type, error_description } = getParamsFromHash();
+            const spinner = document.getElementById('loading-spinner');
+            const resultDiv = document.getElementById('result');
+            const backBtn = document.getElementById('back-btn');
+
+            if (error_description) {
+                spinner.style.display = 'none';
+                resultDiv.innerHTML = `<div class="error-icon">&#10060;</div><div class="title">Confirmation Failed</div><div class="message">${error_description}</div>`;
+                resultDiv.style.display = 'block';
+                backBtn.style.display = 'inline-block';
+                return;
+            }
+
+            if (!access_token || type !== 'signup') {
+                spinner.style.display = 'none';
+                resultDiv.innerHTML = `<div class="error-icon">&#10060;</div><div class="title">Invalid Link</div><div class="message">This confirmation link is invalid or expired.</div>`;
+                resultDiv.style.display = 'block';
+                backBtn.style.display = 'inline-block';
+                return;
+            }
+
+            try {
+                // Set the session with the access token
+                await supabase.auth.setSession({ access_token, refresh_token: access_token });
+                spinner.style.display = 'none';
+                resultDiv.innerHTML = `<div class="success-icon">&#10003;</div><div class="title">Email Confirmed!</div><div class="message">Thank you for confirming your email address! Your account has been successfully verified. You can now sign in to the Wise Sobriety app.</div>`;
+                resultDiv.style.display = 'block';
+                backBtn.style.display = 'inline-block';
+            } catch (e) {
+                spinner.style.display = 'none';
+                resultDiv.innerHTML = `<div class="error-icon">&#10060;</div><div class="title">Confirmation Failed</div><div class="message">${e.message || 'An unexpected error occurred.'}</div>`;
+                resultDiv.style.display = 'block';
+                backBtn.style.display = 'inline-block';
+            }
+        }
+
+        handleConfirmation();
+    </script>
+</body>
+</html> 
